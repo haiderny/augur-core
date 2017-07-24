@@ -128,8 +128,8 @@ def make_method_label(method):
 
 def update_from_full_signature(name, inputs, outputs):
     split_name = name.split("(")
-    method = {"method": split_name[0]}
-    method["label"] = make_method_label(method["method"])
+    method = {"name": split_name[0]}
+    method["label"] = make_method_label(method["name"])
     if len(inputs):
         method["signature"] = get_input_types(inputs)
         method["inputs"] = get_input_names(inputs)
@@ -161,7 +161,7 @@ def update_contract_functions_api(contract_name, fullsig, old_api):
         if fn["type"] == "function" and fn["name"] != "test_callstack()":
             outputs = fn["outputs"] if "outputs" in fn else None
             method = update_from_full_signature(fn["name"], fn["inputs"], outputs)
-            api[method["method"]] = update_from_old_api(method, contract_name, method["method"], old_api)
+            api[method["name"]] = update_from_old_api(method, contract_name, method["name"], old_api)
     return api
 
 def get_fixedpoint_outputs(contract_path):
@@ -204,7 +204,7 @@ def get_events_in_method(contract_path, method_name, all_methods):
     events_in_method = []
     check_methods = deepcopy(all_methods)
     for i, submethod in enumerate(check_methods):
-        if submethod["method"] == method_name:
+        if submethod["name"] == method_name:
             check_methods.pop(i)
     with open(contract_path) as srcfile:
         startline = None
@@ -220,16 +220,16 @@ def get_events_in_method(contract_path, method_name, all_methods):
                         check_method = check_methods.pop(i)
                         already_appended = False
                         for s in submethods:
-                            if s["method"] == check_method["method"]:
+                            if s["name"] == check_method["name"]:
                                 already_appended = True
                         if not already_appended:
                             submethods.append(check_method)
             if line.startswith("def " + method_name) or line.startswith("macro " + method_name):
                 startline = linenum
     for submethod in submethods:
-        submethod_events = get_events_in_method(submethod["contract_path"], submethod["method"], check_methods)
+        submethod_events = get_events_in_method(submethod["contract_path"], submethod["name"], check_methods)
         if len(submethod_events):
-            print("  - " + submethod["method"])
+            print("  - " + submethod["name"])
             events_in_method.extend(submethod_events)
     events_in_method = list(set(events_in_method))
     return events_in_method
@@ -246,14 +246,14 @@ def update_api(contract_paths, old_api):
         for contract_method in functions_api.keys():
             if contract_name != "CompositeGetters" and not contract_method.startswith("get"):
                 contract_methods_list.append({
-                    "method": contract_method,
+                    "name": contract_method,
                     "contract_path": contract_path,
                     "finder":  "." + contract_method + "("
                 })
         if "data_api" not in contract_path:
             for macro in extract_macros(contract_path):
                 contract_methods_list.append({
-                    "method": macro,
+                    "name": macro,
                     "contract_path": contract_path,
                     "finder": macro + "("
                 })
