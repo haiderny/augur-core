@@ -6,9 +6,17 @@ import 'ROOT/libraries/token/ERC20.sol';
 import 'ROOT/libraries/token/StandardToken.sol';
 
 
+contract ReportingWindow
+{
+    function getBranch() public returns (Branch);
+    function getStartTime() public returns (int256);
+}
+
+
 contract Branch {
     function getParentBranch() public returns (Branch);
     function getReputationToken() public returns (ReputationToken);
+    function getReportingWindowByTimestamp(int256 _timestamp) public returns (ReportingWindow);
     function isParentOf(Branch _branch) public returns (bool);
     function isContainerForReportingWindow(address _shadyReportingWindow) public returns (bool);
     function isContainerForRegistrationToken(address _shadyRegistrationToken) public returns (bool);
@@ -36,7 +44,7 @@ contract ReputationToken is DelegationTarget, StandardToken {
         symbol = "REP";
         decimals = 18;
         // FIXME: DELETE THIS BEFORE LAUNCH
-        var _reputationFaucet = controller.lookup("reputationFaucet");
+        var _reputationFaucet = controller.lookup("ReputationFaucet");
         balances[_reputationFaucet] = balances[_reputationFaucet].add(1000000 ether);
         totalSupply = totalSupply.add(1000000 ether);
         return true;
