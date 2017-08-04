@@ -6,8 +6,7 @@ import 'ROOT/libraries/token/ERC20.sol';
 import 'ROOT/libraries/token/StandardToken.sol';
 
 
-contract ReportingWindow
-{
+contract ReportingWindow {
     function getBranch() public returns (Branch);
     function getStartTime() public returns (int256);
 }
